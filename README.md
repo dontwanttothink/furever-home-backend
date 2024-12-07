@@ -1,15 +1,45 @@
-# Elysia with Bun runtime
+# Furever Home (Backend)
 
-## Getting Started
-To get started with this template, simply paste this command into your terminal:
+Este repositorio contiene el código para el servicio web de Furever Home.
+
+## Tabla de Contenido
+
+- [Instalación](#instalación)
+- [Uso](#uso)
+- [Funciones](#funciones)
+
+## Uso
+
 ```bash
-bun create elysia ./elysia-example
+git clone https://github.com/dontwanttothink/furever-home-backend.git
+cd furever-home-backend
+bun install # instalar dependencias
+bun dev # iniciar el servidor en modo de desarrollo
 ```
 
-## Development
-To start the development server run:
-```bash
-bun run dev
-```
+El servidor estará disponible en `http://localhost:3000`. Una documentación
+automática, así como una interfaz para probar solicitudes HTTP, se encuentra en
+`http://localhost:3000/swagger`.
 
-Open http://localhost:3000/ with your browser to see the result.
+## Funciones
+
+Este servicio provee una API REST para la gestión de animales en adopción. Los endpoints disponibles son:
+
+### GET /animales
+
+Lista todos los IDs de animales disponibles.
+
+### GET /animales/:id
+
+Obtiene la información de un animal específico por su ID.
+
+### POST /animales
+
+Crea un nuevo registro de animal. Requiere un objeto JSON con:
+
+- `especie`: tipo de animal (Perro o Gato)
+- `descripción`: texto descriptivo del animal
+
+### PUT /animales/:id
+
+Actualiza la información de un animal existente. Requiere el mismo formato de objeto JSON que POST.
