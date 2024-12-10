@@ -1,17 +1,16 @@
 {
   "name": "app",
   "version": "1.0.50",
+  "module": "src/index.js",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "bun-types": "latest"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/swagger": "^1.1.6",
-    "elysia": "latest"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+    "path-to-regexp": "^8.2.0"
+  }
 }
