@@ -2,9 +2,9 @@ import { serve } from "bun";
 import { Database } from "bun:sqlite";
 const db = new Database("data.sqlite", { create: true });
 
-import { animalsRoute, usersRoute } from "./routes";
-import type Route from "./Route";
-const routes: Route[] = [animalsRoute, usersRoute];
+import type { Route } from "./routes";
+import { getAnimal } from "./routes/animals";
+const routes: Route[] = [getAnimal];
 
 async function handleRequest(req: Request): Promise<Response> {
 	const matched = [];
