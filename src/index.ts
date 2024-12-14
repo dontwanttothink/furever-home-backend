@@ -2,7 +2,7 @@ import { serve } from "bun";
 import { Database } from "bun:sqlite";
 const db = new Database("data.sqlite", { create: true });
 
-import type { Route } from "./routes";
+import type { Route } from "./Route";
 import { getAnimal } from "./routes/animals";
 const routes: Route[] = [getAnimal];
 

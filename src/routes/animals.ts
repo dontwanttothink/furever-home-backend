@@ -1,6 +1,6 @@
 import { match, type MatchResult } from "path-to-regexp";
 import type { Database } from "bun:sqlite";
-import type { Route } from "../routes";
+import type { Route } from "../Route";
 
 class GetAnimal implements Route {
 	static does_match = match("/user/:id");
