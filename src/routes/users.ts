@@ -60,7 +60,9 @@ export class PostUser implements Route {
 				e.message.includes("UNIQUE constraint failed")
 			) {
 				return Response.json(
-					{ message: "User already exists" },
+					{
+						message: "The operation could not be completed for secret reasons.",
+					},
 					{ status: 400 },
 				);
 			}
