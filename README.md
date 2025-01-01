@@ -17,9 +17,7 @@ bun install # instalar dependencias
 bun dev # iniciar el servidor en modo de desarrollo
 ```
 
-El servidor estará disponible en `http://localhost:3000`. Una documentación
-automática, así como una interfaz para probar solicitudes HTTP, se encuentra en
-`http://localhost:3000/swagger`.
+El servidor estará disponible en `http://localhost:3000`.
 
 ## Funciones
 
