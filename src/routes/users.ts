@@ -80,6 +80,12 @@ class Session {
 	private static MILLISECONDS_IN_A_DAY = 1000 * 60 * 60 * 24;
 	public static defaultExpirationTime = Session.MILLISECONDS_IN_A_DAY;
 
+	/**
+	 * Creates a new session.
+	 * @param token - The session token.
+	 * @param user_id - The ID of the user.
+	 * @param expiration - The expiration time of the session in milliseconds.
+	 */
 	constructor(
 		public token: Uint8Array,
 		public user_id: number,
@@ -127,6 +133,13 @@ class SessionStore {
 	 */
 	get(token_string: string): Session | undefined {
 		return this.by_token_string.get(token_string);
+	}
+
+	/**
+	 * Checks if a session with the given token string exists.
+	 */
+	has(token_string: string): boolean {
+		return this.by_token_string.has(token_string);
 	}
 
 	/**
@@ -233,5 +246,54 @@ export class PostSignIn implements Route {
 			{ token: session.get_token_string() },
 			{ status: 200 },
 		);
+	}
+}
+
+export class DeleteSignOut implements Route {
+	private static does_match = match("/users/sign-out");
+
+	shouldHandle(req: Request): boolean {
+		const asURL = new URL(req.url);
+		return (
+			!!DeleteSignOut.does_match(asURL.pathname) && req.method === "DELETE"
+		);
+	}
+
+	async handle(req: Request): Promise<Response> {
+		const authorizationHeader = req.headers.get("Authorization")?.split(" ");
+		if (!authorizationHeader) {
+			return Response.json({ message: "No token provided" }, { status: 400 });
+		}
+
+		const scheme: string | undefined = authorizationHeader[0];
+		if (!scheme || scheme.toLowerCase() !== "bearer") {
+			return Response.json(
+				{ message: "Authorization scheme must be 'bearer'" },
+				{ status: 400 },
+			);
+		}
+
+		const token: string | undefined = authorizationHeader[1];
+		if (!token) {
+			return Response.json({ message: "No token provided" }, { status: 400 });
+		}
+
+		if (!session_store.has(token)) {
+			return Response.json(
+				{ message: "Session does not exist" },
+				{ status: 404 },
+			);
+		}
+
+		if (Math.random() < 0.1) {
+			return Response.json(
+				{ message: "You have to pay to sign out." },
+				{ status: 402 },
+			);
+		}
+
+		session_store.remove(token);
+
+		return Response.json({ message: "Signed out" }, { status: 200 });
 	}
 }
