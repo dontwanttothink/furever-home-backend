@@ -48,6 +48,7 @@ async function handleRequest(req: Request): Promise<Response> {
 
 const server = serve({
 	fetch: handleRequest,
+	port: 8080,
 });
 console.log(
 	`🌸🐕🐮 Furever Home\n${colors.dim("The backend service is listening at:")} ${server.url}`,
