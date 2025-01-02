@@ -16,8 +16,6 @@ const UserRequest = z.object({
 
 type UserRequest = z.infer<typeof UserRequest>;
 
-const session_store = new Map<string, number>();
-
 export class PostSignUp implements Route {
 	private static does_match = match("/users/sign-up");
 	private insert_user;
@@ -74,6 +72,92 @@ export class PostSignUp implements Route {
 		return Response.json({ message: "User created" }, { status: 201 });
 	}
 }
+
+/**
+ * Represents a session.
+ */
+class Session {
+	private static MILLISECONDS_IN_A_DAY = 1000 * 60 * 60 * 24;
+	public static defaultExpirationTime = Session.MILLISECONDS_IN_A_DAY;
+
+	constructor(
+		public token: Uint8Array,
+		public user_id: number,
+		public expiration: number = Date.now() + Session.defaultExpirationTime,
+	) {}
+
+	/**
+	 * Yields a representation of the session token appropriate for use in a
+	 * header.
+	 * @returns A hex string representation of the token.
+	 */
+	get_token_string(): string {
+		return Array.prototype.map
+			.call(this.token, (byte) => `0${byte.toString(16)}`.slice(-2))
+			.join("");
+	}
+
+	is_expired(): boolean {
+		return this.expiration < Date.now();
+	}
+
+	refreshed(expiration: number | undefined): Session {
+		return new Session(this.token, this.user_id, expiration);
+	}
+}
+
+class SessionStore {
+	private by_token_string = new Map<string, Session>();
+	private expiration_queue: [number, string][] = [];
+
+	/**
+	 * Adds a session to the store.
+	 * @param session The session to add.
+	 */
+	add(session: Session): void {
+		const token_string = session.get_token_string();
+		this.by_token_string.set(token_string, session);
+		this.expiration_queue.push([session.expiration, token_string]);
+	}
+
+	/**
+	 * Retrieves a session by its token string.
+	 * @param token_string The token string of the session to retrieve.
+	 * @returns The session, if it exists.
+	 */
+	get(token_string: string): Session | undefined {
+		return this.by_token_string.get(token_string);
+	}
+
+	/**
+	 * Removes all expired sessions.
+	 */
+	async remove_expired(): Promise<void> {
+		const now = Date.now();
+		while (this.expiration_queue.length > 0) {
+			const [expiration, token_string] = this.expiration_queue[0];
+			if (expiration > now) {
+				break;
+			}
+
+			// ECMAScript makes it hard to get a good time complexity for this
+			this.expiration_queue.shift();
+			this.by_token_string.delete(token_string);
+
+			await Promise.resolve(); // Don't block
+		}
+	}
+
+	/**
+	 * Removes a session by its token string.
+	 * @param token_string The token string of the session to remove.
+	 */
+	remove(token_string: string): void {
+		this.by_token_string.delete(token_string);
+	}
+}
+
+const session_store = new SessionStore();
 
 interface UserRow {
 	id: number;
@@ -138,9 +222,16 @@ export class PostSignIn implements Route {
 			return PostSignIn.invalid_credentials_response;
 		}
 
-		// so everything is missing here
-		// TODO: generate a session token and put it in the store
+		const token = new Uint8Array(64);
+		crypto.getRandomValues(token);
 
-		return Response.json({ message: "User signed in", id }, { status: 200 });
+		const session = new Session(token, id);
+		session_store.add(session);
+		session_store.remove_expired();
+
+		return Response.json(
+			{ token: session.get_token_string() },
+			{ status: 200 },
+		);
 	}
 }
