@@ -22,7 +22,7 @@ export class PostSignUp implements Route {
 
 	constructor(db: Database) {
 		this.insertUser = db.prepare(
-			"INSERT INTO users (email, password_hash) VALUES ($email, $password_hash)",
+			"INSERT INTO users (email, passwordHash) VALUES ($email, $passwordHash)",
 		);
 	}
 
@@ -192,7 +192,7 @@ export class PostSignIn implements Route {
 
 	constructor(db: Database) {
 		this.getUser = db.prepare(
-			"SELECT id, email, password_hash FROM users WHERE email = $email",
+			"SELECT id, email, passwordHash FROM users WHERE email = $email",
 		);
 	}
 

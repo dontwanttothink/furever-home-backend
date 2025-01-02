@@ -7,7 +7,7 @@ const db = new Database("data.sqlite", { create: true, strict: true });
 db.query(`CREATE TABLE IF NOT EXISTS users (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	email TEXT UNIQUE NOT NULL,
-	password_hash TEXT NOT NULL
+	passwordHash TEXT NOT NULL
 )`).run();
 
 import type { Route } from "./Route";
