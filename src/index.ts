@@ -27,9 +27,12 @@ async function handleRequest(req: Request): Promise<Response> {
 	}
 
 	if (matched.length === 0) {
-		return new Response("Not Found", {
-			status: 404,
-		});
+		return Response.json(
+			{ message: "Not Found" },
+			{
+				status: 404,
+			},
+		);
 	}
 	if (matched.length === 1) {
 		return matched[0].handle(req);
@@ -40,7 +43,7 @@ async function handleRequest(req: Request): Promise<Response> {
 			.map((r) => r.constructor.name)
 			.join(", ")}]`,
 	);
-	return new Response("Server Error", { status: 500 });
+	return Response.json({ message: "Server Error" }, { status: 500 });
 }
 
 const server = serve({
