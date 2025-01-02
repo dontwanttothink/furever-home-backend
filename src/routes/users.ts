@@ -16,8 +16,10 @@ const UserRequest = z.object({
 
 type UserRequest = z.infer<typeof UserRequest>;
 
-export class PostUser implements Route {
-	private static does_match = match("/users");
+const session_store = new Map<string, number>();
+
+export class PostSignUp implements Route {
+	private static does_match = match("/users/sign-up");
 	private insert_user;
 
 	constructor(db: Database) {
@@ -28,8 +30,9 @@ export class PostUser implements Route {
 
 	shouldHandle(req: Request): boolean {
 		const asURL = new URL(req.url);
-		return !!PostUser.does_match(asURL.pathname) && req.method === "POST";
+		return !!PostSignUp.does_match(asURL.pathname) && req.method === "POST";
 	}
+
 	async handle(req: Request): Promise<Response> {
 		let body: unknown;
 		try {
@@ -69,5 +72,75 @@ export class PostUser implements Route {
 			throw e;
 		}
 		return Response.json({ message: "User created" }, { status: 201 });
+	}
+}
+
+interface UserRow {
+	id: number;
+	email: string;
+	password_hash: string;
+}
+
+export class PostSignIn implements Route {
+	private static does_match = match("/users/sign-in");
+	private static invalid_credentials_response = Response.json(
+		{
+			message: "The username or password are incorrect.",
+			code: "invalid_credentials",
+		},
+		{ status: 401 },
+	);
+
+	private get_user;
+
+	constructor(db: Database) {
+		this.get_user = db.prepare(
+			"SELECT id, email, password_hash FROM users WHERE email = $email",
+		);
+	}
+
+	shouldHandle(req: Request): boolean {
+		const asURL = new URL(req.url);
+		return !!PostSignIn.does_match(asURL.pathname) && req.method === "POST";
+	}
+
+	async handle(req: Request): Promise<Response> {
+		let body: unknown;
+		try {
+			body = await req.json();
+		} catch (e) {
+			return Response.json({ message: "Invalid JSON" }, { status: 400 });
+		}
+
+		let user: UserRequest;
+		try {
+			user = UserRequest.parse(body);
+		} catch (e) {
+			if (e instanceof ZodError) {
+				return Response.json(e.issues, { status: 400 });
+			}
+			throw e;
+		}
+
+		const { password, email } = user;
+
+		const user_row = this.get_user.get({ email }) as UserRow | undefined;
+
+		if (!user_row) {
+			return PostSignIn.invalid_credentials_response;
+		}
+
+		const { id, password_hash } = user_row;
+
+		const is_valid = await verify(password, password_hash);
+
+		if (!is_valid) {
+			return PostSignIn.invalid_credentials_response;
+		}
+
+		// so everything is missing here
+		// TODO: generate a session token and put it in the store
+
+		return Response.json({ message: "User signed in", id }, { status: 200 });
 	}
 }

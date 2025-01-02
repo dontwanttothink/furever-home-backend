@@ -11,9 +11,10 @@ db.query(`CREATE TABLE IF NOT EXISTS users (
 )`).run();
 
 import type { Route } from "./Route";
-import { PostUser } from "./routes/users";
+import { PostSignUp, PostSignIn } from "./routes/users";
 import { GetHome } from "./routes/home";
-const routes: Route[] = [GetHome, PostUser].map((Route) => new Route(db));
+
+const routes: Route[] = [GetHome, PostSignUp, PostSignIn].map((R) => new R(db));
 
 async function handleRequest(req: Request): Promise<Response> {
 	const matched = [];
