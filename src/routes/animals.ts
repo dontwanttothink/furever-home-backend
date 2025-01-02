@@ -3,17 +3,17 @@ import type { Database } from "bun:sqlite";
 import type { Route } from "../Route";
 
 export class GetAnimal implements Route {
-	static does_match = match("/user/:id");
+	static doesMatch = match("/user/:id");
 
 	shouldHandle(req: Request): boolean {
 		const path = new URL(req.url).pathname;
-		return !!GetAnimal.does_match(path) && req.method === "GET";
+		return !!GetAnimal.doesMatch(path) && req.method === "GET";
 	}
 
 	handle(req: Request): Promise<Response> | Response {
 		const path = new URL(req.url).pathname;
 
-		const matchResult = GetAnimal.does_match(path);
+		const matchResult = GetAnimal.doesMatch(path);
 		if (matchResult === false) throw new Error();
 
 		const {

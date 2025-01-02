@@ -19,7 +19,15 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"style": {
+				"useNamingConvention": {
+					"level": "warn",
+					"options": {
+						"strictCase": false
+					}
+				}
+			}
 		}
 	},
 	"javascript": {
