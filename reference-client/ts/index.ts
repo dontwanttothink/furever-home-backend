@@ -12,6 +12,7 @@ signInButton.addEventListener("click", () => {
 	if (!signInDialog || !(signInDialog instanceof HTMLDialogElement)) {
 		throw new Error("Sign-in dialog is missing");
 	}
+	console.log("hi???");
 	signInDialog.showModal();
 });
 
@@ -32,21 +33,26 @@ if (!signInForm || !(signInForm instanceof HTMLFormElement)) {
 	throw new Error("Sign-in form is missing");
 }
 signInForm.addEventListener("submit", async (event) => {
+	console.log("hi??");
+
 	event.preventDefault();
 
 	const formData = new FormData(signInForm);
 	const email = formData.get("email");
 	const password = formData.get("password");
 
-	console.log("Doing something");
-
-	const response = await fetch("http://localhost:8080/sign-in", {
+	const response = await fetch("http://localhost:8080/users/sign-in", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({ email, password }),
 	});
-	const data = await response.json();
-	document.body.appendChild(document.createTextNode(JSON.stringify(data)));
+	console.log("received another response");
+
+	const paragraph = document.createElement("p");
+	paragraph.textContent = await response.text();
+
+	document.body.appendChild(paragraph);
+	console.log("added child");
 });

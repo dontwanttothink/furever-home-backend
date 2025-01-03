@@ -3,8 +3,8 @@
 	"module": "index.ts",
 	"type": "module",
 	"scripts": {
-		"build": "tsc",
-		"watch": "tsc -w"
+		"build": "bunx tsc",
+		"watch": "bunx tsc -w"
 	},
 	"devDependencies": {},
 	"peerDependencies": {

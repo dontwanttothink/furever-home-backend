@@ -9,7 +9,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "bun run src/index.ts",
-		"dev": "bun run --watch src/index.ts --reference-client"
+		"dev": "bun run --watch src/index.ts --reference-client-watch"
 	},
 	"dependencies": {
 		"path-to-regexp": "^8.2.0",

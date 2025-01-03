@@ -1,10 +1,13 @@
 import colors from "yoctocolors";
 import { match } from "path-to-regexp";
 
-import { serve, argv } from "bun";
+import { serve, argv, spawn } from "bun";
 import { Database } from "bun:sqlite";
+import { resolve } from "node:path";
 
-const REFERENCE_CLIENT_ENABLED = argv.includes("--reference-client");
+const SHOULD_WATCH = argv.includes("--reference-client-watch");
+const REFERENCE_CLIENT_ENABLED =
+	argv.includes("--reference-client") || SHOULD_WATCH;
 
 const db = new Database("data.sqlite", { create: true, strict: true });
 db.query(`CREATE TABLE IF NOT EXISTS users (
@@ -24,10 +27,39 @@ const routeConstructors: RouteConstructor[] = [
 	DeleteSignOut,
 	GetHome,
 ];
-if (REFERENCE_CLIENT_ENABLED) {
-	routeConstructors.push(GetReferenceClient);
-}
 const routes: Route[] = routeConstructors.map((R) => new R(db));
+
+const referenceClient = new GetReferenceClient();
+if (REFERENCE_CLIENT_ENABLED) {
+	routes.push(referenceClient);
+}
+
+async function setUpReferenceClient() {
+	const installProcess = spawn(["bun", "install"], {
+		cwd: resolve(__dirname, "..", "reference-client"),
+	});
+	await installProcess.exited;
+
+	const buildProcess = spawn(["bun", "run", "build"], {
+		cwd: resolve(__dirname, "..", "reference-client"),
+	});
+	await buildProcess.exited;
+
+	if (!buildProcess.exitCode) {
+		referenceClient.enable();
+
+		if (SHOULD_WATCH) {
+			spawn(["bun", "run", "watch"], {
+				cwd: resolve(__dirname, "..", "reference-client"),
+			});
+			console.log(colors.dim("(built client, watching for changes)"));
+		} else {
+			console.log(colors.dim("(built client)"));
+		}
+	} else {
+		console.error("Failed to build development client!");
+	}
+}
 
 class Handler {
 	private route;
@@ -36,6 +68,10 @@ class Handler {
 	constructor(route: Route) {
 		this.route = route;
 		this.doesMatch = match(this.route.pattern);
+	}
+
+	get name(): string {
+		return this.route.constructor.name;
 	}
 
 	shouldHandle(req: Request): boolean {
@@ -76,12 +112,15 @@ async function handleRequest(req: Request): Promise<Response> {
 		);
 	}
 	if (matched.length === 1) {
+		console.debug(
+			`Matched route: ${req.method}: ${new URL(req.url).pathname}: ${matched[0].name}`,
+		);
 		return matched[0].handle(req);
 	}
 
 	console.error(
-		`Multiple routes matched the same request: ${req.method}: ${new URL(req.url).pathname}: [${routes
-			.map((r) => r.constructor.name)
+		`Multiple routes matched the same request: ${req.method}: ${new URL(req.url).pathname}: [${matched
+			.map((m) => m.name)
 			.join(", ")}]`,
 	);
 	return Response.json({ message: "Server Error" }, { status: 500 });
@@ -92,5 +131,12 @@ const server = serve({
 	port: 8080,
 });
 console.log(
-	`🌸🐕🐮 Furever Home\n${colors.dim("The backend service is listening at:")} ${server.url}`,
+	`${colors.bold("🌸🐕🐮 Furever Home")}\n${colors.dim("The backend service is listening at:")} ${server.url}`,
 );
+if (REFERENCE_CLIENT_ENABLED) {
+	console.log(
+		`${colors.dim("A development client will be available at:")} ${server.url}client`,
+	);
+	setUpReferenceClient();
+}
+console.log();

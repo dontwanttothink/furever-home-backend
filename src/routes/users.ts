@@ -177,15 +177,6 @@ export const PostSignIn: RouteConstructor = class {
 	public pattern = "/users/sign-in";
 	public method = "POST";
 
-	// We can't use static fields because our class is anonymous. Urgh?!
-	private invalidCredentialsResponse = Response.json(
-		{
-			message: "The username or password are incorrect.",
-			code: "invalid_credentials",
-		},
-		{ status: 401 },
-	);
-
 	private getUser;
 
 	constructor(db: Database) {
@@ -214,10 +205,18 @@ export const PostSignIn: RouteConstructor = class {
 
 		const { password, email } = user;
 
+		const invalidCredentialsResponse = Response.json(
+			{
+				message: "The username or password are incorrect.",
+				code: "invalid_credentials",
+			},
+			{ status: 401 },
+		);
+
 		const userRow = this.getUser.get({ email }) as UserRow | undefined;
 
 		if (!userRow) {
-			return this.invalidCredentialsResponse;
+			return invalidCredentialsResponse;
 		}
 
 		const { id, passwordHash } = userRow;
@@ -225,7 +224,7 @@ export const PostSignIn: RouteConstructor = class {
 		const isValid = await verify(password, passwordHash);
 
 		if (!isValid) {
-			return this.invalidCredentialsResponse;
+			return invalidCredentialsResponse;
 		}
 
 		const token = new Uint8Array(64);
