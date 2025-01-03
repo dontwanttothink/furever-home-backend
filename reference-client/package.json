@@ -1,0 +1,13 @@
+{
+	"name": "furever-home-reference-client",
+	"module": "index.ts",
+	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"watch": "tsc -w"
+	},
+	"devDependencies": {},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	}
+}

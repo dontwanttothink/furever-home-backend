@@ -1,0 +1,112 @@
+:root {
+    --background-color: #f4f4f4;
+    --text-color: #333;
+    
+    --dialog-background-color: #ffffff;
+
+    --button-background-color: #333;
+    --button-text-color: #fff;
+    --button-hover-background-color: #555;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #121212;
+        --text-color: #e0e0e0;
+
+        --dialog-background-color: #191919;
+
+        --button-background-color: #1e1e1e;
+        --button-hover-background-color: #333;
+    }
+}
+
+.button-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    margin-top: 2em;
+}
+
+#dialog-buttons {
+    margin: 0 auto;
+
+    button {
+        margin: 0 0.5em;
+    }
+}
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, system-ui, sans-serif;
+    margin: 2.5em auto;
+    padding: 0 1.5em;
+    max-width: 600px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+h1 {
+    margin: 0.6em 0;
+    font-size: 2em;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+button {
+    background-color: var(--button-background-color);
+    color: var(--button-text-color);
+    border: none;
+    padding: 1em;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+    border-radius: 15px;
+    font-size: 1em;
+}
+button:hover {
+    background-color: var(--button-hover-background-color);
+    transition: background-color 0.3s ease;
+}
+
+input {
+    font-size: 0.8em;
+    border: none;
+}
+
+dialog {
+    background-color: var(--dialog-background-color);
+    color: var(--text-color);
+
+    height: 400px;
+    width: 400px;
+
+    border: none;
+    border-radius: 30px;
+    padding: 1.5em;
+}
+
+dialog form {
+    display: flex;
+    flex-direction: column;
+}
+
+dialog form label {
+    margin-bottom: 0.5em;
+    font-size: 1em;
+}
+
+dialog form input {
+    margin-bottom: 1.5em;
+    padding: 0.75em;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border-radius: 5px;
+}
+
+dialog form button {
+    width: fit-content;
+    margin: 1em auto;
+}

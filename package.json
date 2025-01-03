@@ -1,18 +1,19 @@
 {
-  "name": "app",
-  "version": "1.0.50",
-  "module": "src/index.js",
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "bun-types": "latest"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
-  },
-  "dependencies": {
-    "path-to-regexp": "^8.2.0",
-    "yoctocolors": "^2.1.1",
-    "zod": "^3.24.1"
-  }
+	"name": "app",
+	"version": "1.0.50",
+	"module": "src/index.js",
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"bun-types": "latest"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "bun run src/index.ts",
+		"dev": "bun run --watch src/index.ts --reference-client"
+	},
+	"dependencies": {
+		"path-to-regexp": "^8.2.0",
+		"yoctocolors": "^2.1.1",
+		"zod": "^3.24.1"
+	}
 }

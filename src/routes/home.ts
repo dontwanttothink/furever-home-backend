@@ -1,15 +1,11 @@
 import { match } from "path-to-regexp";
-import type { Route } from "../Route";
+import type { RouteConstructor } from "../Route";
 
-export class GetHome implements Route {
-	static doesMatch = match("/");
-
-	shouldHandle(req: Request): boolean {
-		const path = new URL(req.url).pathname;
-		return !!GetHome.doesMatch(path) && req.method === "GET";
-	}
+export const GetHome: RouteConstructor = class {
+	public pattern = "/";
+	public method = "GET";
 
 	handle(): Response {
-		return new Response("Hello, world!");
+		return Response.json({ message: "Hello, World!" }, { status: 200 });
 	}
-}
+};

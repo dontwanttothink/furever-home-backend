@@ -1,11 +1,10 @@
-import { match } from "path-to-regexp";
 import { z, ZodError } from "zod";
 import type { Database } from "bun:sqlite";
 
 import { password } from "bun";
 const { hash, verify } = password;
 
-import type { Route } from "../Route";
+import type { Route, RouteConstructor } from "../Route";
 
 // Bun handles password salting transparently for us.
 
@@ -16,19 +15,15 @@ const UserRequest = z.object({
 
 type UserRequest = z.infer<typeof UserRequest>;
 
-export class PostSignUp implements Route {
-	private static doesMatch = match("/users/sign-up");
+export const PostSignUp: RouteConstructor = class {
+	public pattern = "/users/sign-up";
+	public method = "POST";
 	private insertUser;
 
 	constructor(db: Database) {
 		this.insertUser = db.prepare(
 			"INSERT INTO users (email, passwordHash) VALUES ($email, $passwordHash)",
 		);
-	}
-
-	shouldHandle(req: Request): boolean {
-		const asUrl = new URL(req.url);
-		return !!PostSignUp.doesMatch(asUrl.pathname) && req.method === "POST";
 	}
 
 	async handle(req: Request): Promise<Response> {
@@ -71,7 +66,7 @@ export class PostSignUp implements Route {
 		}
 		return Response.json({ message: "User created" }, { status: 201 });
 	}
-}
+};
 
 /**
  * Represents a session.
@@ -178,9 +173,12 @@ interface UserRow {
 	passwordHash: string;
 }
 
-export class PostSignIn implements Route {
-	private static doesMatch = match("/users/sign-in");
-	private static invalidCredentialsResponse = Response.json(
+export const PostSignIn: RouteConstructor = class {
+	public pattern = "/users/sign-in";
+	public method = "POST";
+
+	// We can't use static fields because our class is anonymous. Urgh?!
+	private invalidCredentialsResponse = Response.json(
 		{
 			message: "The username or password are incorrect.",
 			code: "invalid_credentials",
@@ -194,11 +192,6 @@ export class PostSignIn implements Route {
 		this.getUser = db.prepare(
 			"SELECT id, email, passwordHash FROM users WHERE email = $email",
 		);
-	}
-
-	shouldHandle(req: Request): boolean {
-		const asUrl = new URL(req.url);
-		return !!PostSignIn.doesMatch(asUrl.pathname) && req.method === "POST";
 	}
 
 	async handle(req: Request): Promise<Response> {
@@ -224,7 +217,7 @@ export class PostSignIn implements Route {
 		const userRow = this.getUser.get({ email }) as UserRow | undefined;
 
 		if (!userRow) {
-			return PostSignIn.invalidCredentialsResponse;
+			return this.invalidCredentialsResponse;
 		}
 
 		const { id, passwordHash } = userRow;
@@ -232,7 +225,7 @@ export class PostSignIn implements Route {
 		const isValid = await verify(password, passwordHash);
 
 		if (!isValid) {
-			return PostSignIn.invalidCredentialsResponse;
+			return this.invalidCredentialsResponse;
 		}
 
 		const token = new Uint8Array(64);
@@ -244,15 +237,11 @@ export class PostSignIn implements Route {
 
 		return Response.json({ token: session.getTokenString() }, { status: 200 });
 	}
-}
+};
 
-export class DeleteSignOut implements Route {
-	private static doesMatch = match("/users/sign-out");
-
-	shouldHandle(req: Request): boolean {
-		const asUrl = new URL(req.url);
-		return !!DeleteSignOut.doesMatch(asUrl.pathname) && req.method === "DELETE";
-	}
+export const DeleteSignOut: RouteConstructor = class {
+	public pattern = "/users/sign-out";
+	public method = "DELETE";
 
 	async handle(req: Request): Promise<Response> {
 		const authorizationHeader = req.headers.get("Authorization")?.split(" ");
@@ -291,4 +280,4 @@ export class DeleteSignOut implements Route {
 
 		return Response.json({ message: "Signed out" }, { status: 200 });
 	}
-}
+};

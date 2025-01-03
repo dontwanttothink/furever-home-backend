@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furever Home Reference Client</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <h1>Welcome to the Prototype</h1>
+
+    <p>
+        This is a reference client for the Furever Home API. Try out the basic features by clicking the buttons.
+    </p>
+
+    <div class="button-wrapper">
+        <button id="sign-in">Sign In</button>
+        <button id="sign-up">Sign Up</button>
+        <button id="sign-out">Sign Out</button>
+        <button id="view-pets">View Pets</button>
+    </div>
+
+    <dialog id="sign-in-dialog">
+        <h2>Welcome</h2>
+        <form id="sign-in-form" method="post">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <div id="dialog-buttons">
+                <button type="submit">Sign In</button>
+                <button id="close-dialog">Cancel</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script type="module" src="js/index.js"></script>
+</body>
+
+</html>

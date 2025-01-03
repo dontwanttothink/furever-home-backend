@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"outDir": "./js", // Output directory for compiled JS
+		"rootDir": "./ts", // Root directory for TS files
+
+		// Enable latest features
+		"lib": ["ESNext", "DOM"],
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleDetection": "force",
+
+		// Bundler mode
+		"moduleResolution": "bundler",
+		"verbatimModuleSyntax": true,
+
+		// Best practices
+		"strict": true,
+		"skipLibCheck": true,
+		"noFallthroughCasesInSwitch": true
+	}
+}
