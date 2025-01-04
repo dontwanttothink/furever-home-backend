@@ -12,6 +12,7 @@
 		"dev": "bun run --watch src/index.ts --reference-client-watch"
 	},
 	"dependencies": {
+		"chokidar": "^4.0.3",
 		"path-to-regexp": "^8.2.0",
 		"yoctocolors": "^2.1.1",
 		"zod": "^3.24.1"

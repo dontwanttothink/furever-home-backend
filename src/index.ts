@@ -1,3 +1,4 @@
+import { watch } from "chokidar";
 import colors from "yoctocolors";
 import { match } from "path-to-regexp";
 
@@ -8,6 +9,8 @@ import { resolve } from "node:path";
 const SHOULD_WATCH = argv.includes("--reference-client-watch");
 const REFERENCE_CLIENT_ENABLED =
 	argv.includes("--reference-client") || SHOULD_WATCH;
+
+const REFERENCE_CLIENT_PATH = resolve(__dirname, "..", "reference-client");
 
 const db = new Database("data.sqlite", { create: true, strict: true });
 db.query(`CREATE TABLE IF NOT EXISTS users (
@@ -40,24 +43,45 @@ async function setUpReferenceClient() {
 	});
 	await installProcess.exited;
 
-	const buildProcess = spawn(["bun", "run", "build"], {
+	const buildProcess = spawn(["bunx", "tsc"], {
 		cwd: resolve(__dirname, "..", "reference-client"),
+		stdout: "inherit",
 	});
 	await buildProcess.exited;
 
-	if (!buildProcess.exitCode) {
-		referenceClient.enable();
-
-		if (SHOULD_WATCH) {
-			spawn(["bun", "run", "watch"], {
-				cwd: resolve(__dirname, "..", "reference-client"),
-			});
-			console.log(colors.dim("(built client, watching for changes)"));
-		} else {
-			console.log(colors.dim("(built client)"));
-		}
-	} else {
+	if (buildProcess.exitCode) {
 		console.error("Failed to build development client!");
+		return;
+	}
+
+	referenceClient.enable();
+
+	if (SHOULD_WATCH) {
+		console.log(colors.dim("(built client, watching for changes)"));
+
+		// Manually watch to work around bugs
+
+		const watcher = watch(resolve(REFERENCE_CLIENT_PATH, "ts"), {
+			ignoreInitial: true,
+			cwd: REFERENCE_CLIENT_PATH,
+		});
+		watcher.on("all", async () => {
+			console.write(colors.italic(colors.dim("change detected… ")));
+
+			const buildProcess = spawn(["bunx", "tsc"], {
+				cwd: resolve(__dirname, "..", "reference-client"),
+				stdout: "inherit",
+			});
+			await buildProcess.exited;
+
+			if (buildProcess.exitCode) {
+				console.error("\nFailed to build development client!");
+			} else {
+				console.log(colors.dim("(rebuilt client)"));
+			}
+		});
+	} else {
+		console.log(colors.dim("(built client)"));
 	}
 }
 

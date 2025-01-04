@@ -3,6 +3,8 @@
 		"outDir": "./js", // Output directory for compiled JS
 		"rootDir": "./ts", // Root directory for TS files
 
+		"incremental": true,
+
 		// Enable latest features
 		"lib": ["ESNext", "DOM"],
 		"target": "ESNext",
