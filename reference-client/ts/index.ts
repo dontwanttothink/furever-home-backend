@@ -12,7 +12,6 @@ signInButton.addEventListener("click", () => {
 	if (!signInDialog || !(signInDialog instanceof HTMLDialogElement)) {
 		throw new Error("Sign-in dialog is missing");
 	}
-	console.log("hi???");
 	signInDialog.showModal();
 });
 
@@ -48,11 +47,9 @@ signInForm.addEventListener("submit", async (event) => {
 		},
 		body: JSON.stringify({ email, password }),
 	});
-	console.log("received another response");
 
 	const paragraph = document.createElement("p");
 	paragraph.textContent = await response.text();
 
 	document.body.appendChild(paragraph);
-	console.log("added child");
 });
