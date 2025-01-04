@@ -32,8 +32,6 @@ if (!signInForm || !(signInForm instanceof HTMLFormElement)) {
 	throw new Error("Sign-in form is missing");
 }
 signInForm.addEventListener("submit", async (event) => {
-	console.log("hi??");
-
 	event.preventDefault();
 
 	const formData = new FormData(signInForm);
