@@ -37,27 +37,63 @@ if (REFERENCE_CLIENT_ENABLED) {
 	routes.push(referenceClient);
 }
 
+class ClientBuilder {
+	private isBuilding = false;
+	private changesSinceLastBuild = false;
+
+	async build(silent = false) {
+		this.isBuilding = true;
+
+		// the current state will be built
+		this.changesSinceLastBuild = false;
+
+		const buildProcess = spawn(["bun", "tsc"], {
+			cwd: resolve(__dirname, "..", "reference-client"),
+			stdout: "inherit",
+		});
+		await buildProcess.exited;
+
+		this.isBuilding = false;
+
+		if (buildProcess.exitCode) {
+			console.error("Failed to build development client!");
+		} else if (!silent) {
+			console.log(colors.dim("(built client)"));
+		}
+
+		if (this.changesSinceLastBuild) {
+			this.changesSinceLastBuild = false;
+			await this.build();
+		}
+	}
+
+	notifyChange() {
+		this.changesSinceLastBuild = true;
+		if (!this.isBuilding) {
+			this.build();
+		}
+	}
+}
+
 async function setUpReferenceClient() {
+	const clientBuilder = new ClientBuilder();
+
 	const installProcess = spawn(["bun", "install"], {
 		cwd: resolve(__dirname, "..", "reference-client"),
 	});
 	await installProcess.exited;
 
-	const buildProcess = spawn(["bunx", "tsc"], {
-		cwd: resolve(__dirname, "..", "reference-client"),
-		stdout: "inherit",
-	});
-	await buildProcess.exited;
-
-	if (buildProcess.exitCode) {
-		console.error("Failed to build development client!");
+	if (installProcess.exitCode) {
+		console.error("Failed to install development client dependencies!");
 		return;
 	}
+
+	await clientBuilder.build(true);
 
 	referenceClient.enable();
 
 	if (SHOULD_WATCH) {
-		console.log(colors.dim("(built client, watching for changes)"));
+		console.log(colors.dim("(watching for changes)"));
 
 		// Manually watch to work around bugs
 
@@ -65,20 +101,10 @@ async function setUpReferenceClient() {
 			ignoreInitial: true,
 			cwd: REFERENCE_CLIENT_PATH,
 		});
-		watcher.on("all", async () => {
-			console.write(colors.italic(colors.dim("change detected… ")));
 
-			const buildProcess = spawn(["bunx", "tsc"], {
-				cwd: resolve(__dirname, "..", "reference-client"),
-				stdout: "inherit",
-			});
-			await buildProcess.exited;
-
-			if (buildProcess.exitCode) {
-				console.error("\nFailed to build development client!");
-			} else {
-				console.log(colors.dim("(rebuilt client)"));
-			}
+		watcher.on("all", () => {
+			console.log(colors.italic(colors.dim("change detected…")));
+			clientBuilder.notifyChange();
 		});
 	} else {
 		console.log(colors.dim("(built client)"));
