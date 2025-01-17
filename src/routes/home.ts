@@ -1,4 +1,3 @@
-import { match } from "path-to-regexp";
 import type { RouteConstructor } from "../Route";
 
 export const GetHome: RouteConstructor = class {
