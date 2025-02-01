@@ -12,6 +12,7 @@ const REFERENCE_CLIENT_ENABLED =
 
 const REFERENCE_CLIENT_PATH = resolve(__dirname, "..", "reference-client");
 
+import Logger from "./Logger";
 import type { Route, RouteConstructor } from "./Route";
 import { PostSignUp, PostSignIn, DeleteSignOut } from "./routes/users";
 import { GetHome } from "./routes/home";
@@ -47,9 +48,9 @@ class ClientBuilder {
 		this.isBuilding = false;
 
 		if (buildProcess.exitCode) {
-			console.error("Failed to build development client!");
+			logger.error("Failed to build development client!");
 		} else if (!silent) {
-			console.log(colors.dim("(built client)"));
+			logger.info(colors.dim("(built client)"));
 		}
 
 		if (this.changesSinceLastBuild) {
@@ -59,7 +60,7 @@ class ClientBuilder {
 	}
 
 	async watch() {
-		console.log(colors.dim("(watching for changes)"));
+		logger.info(colors.dim("(watching for changes)"));
 
 		// Manually watch to work around bugs
 
@@ -69,7 +70,7 @@ class ClientBuilder {
 		});
 
 		watcher.on("all", () => {
-			console.log(colors.italic(colors.dim("change detected…")));
+			logger.info(colors.italic(colors.dim("change detected…")));
 			this.notifyChange();
 		});
 	}
@@ -138,13 +139,13 @@ class Router {
 			);
 		}
 		if (matched.length === 1) {
-			console.debug(
+			logger.debug(
 				`${colors.dim("Matched route:")} ${req.method}${colors.dim(":")} ${new URL(req.url).pathname}${colors.dim(":")} ${colors.dim(matched[0].name)}`,
 			);
 			return matched[0].handle(req);
 		}
 
-		console.error(
+		logger.error(
 			`Multiple routes matched the same request: ${req.method}: ${new URL(req.url).pathname}: [${matched
 				.map((m) => m.name)
 				.join(", ")}]`,
@@ -152,69 +153,61 @@ class Router {
 		return Response.json({ message: "Server Error" }, { status: 500 });
 	}
 }
+const logger = new Logger("err.log", "out.log");
 
-async function main() {
-	const db = new Database("data.sqlite", { create: true, strict: true });
-	db.query(`CREATE TABLE IF NOT EXISTS users (
+const db = new Database("data.sqlite", { create: true, strict: true });
+db.query(`CREATE TABLE IF NOT EXISTS users (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		email TEXT UNIQUE NOT NULL,
 		passwordHash TEXT NOT NULL
 	)`).run();
 
-	const routeConstructors: RouteConstructor[] = [
-		PostSignUp,
-		PostSignIn,
-		DeleteSignOut,
-		GetHome,
-	];
-	const routes: Route[] = routeConstructors.map((R) => new R(db));
+const routeConstructors: RouteConstructor[] = [
+	PostSignUp,
+	PostSignIn,
+	DeleteSignOut,
+	GetHome,
+];
+const routes: Route[] = routeConstructors.map((R) => new R(db));
 
-	const referenceClientRoute = new GetReferenceClient();
-	if (REFERENCE_CLIENT_ENABLED) {
-		routes.push(referenceClientRoute);
-	}
+const referenceClientRoute = new GetReferenceClient();
+if (REFERENCE_CLIENT_ENABLED) {
+	routes.push(referenceClientRoute);
+}
 
-	const router = new Router(routes);
+const router = new Router(routes);
 
-	const server = serve({
-		fetch: router.handle.bind(router),
-		port: 8080,
-	});
+const server = serve({
+	fetch: router.handle.bind(router),
+	port: 8080,
+});
 
-	console.log(
-		`${colors.bold("🌸🐕🐮 Furever Home")}\n${colors.dim("The backend service is listening at:")} ${server.url}`,
+logger.info(
+	`${colors.bold("🌸🐕🐮 Furever Home")}\n${colors.dim("The backend service is listening at:")} ${server.url}`,
+);
+if (REFERENCE_CLIENT_ENABLED) {
+	logger.info(
+		`${colors.dim("A development client will be available at:")} ${server.url}client`,
 	);
-	if (REFERENCE_CLIENT_ENABLED) {
-		console.log(
-			`${colors.dim("A development client will be available at:")} ${server.url}client`,
-		);
-		console.log();
+	logger.info();
 
-		const clientBuilder = new ClientBuilder();
-		try {
-			await clientBuilder.installDependencies();
-		} catch (e) {
-			if (e instanceof Object && "message" in e) {
-				console.error(e.message);
-			} else {
-				console.error("An unknown error occurred: ", e);
-			}
-			return;
-		}
-
+	const clientBuilder = new ClientBuilder();
+	try {
+		// try/catch is a flawed language feature
+		await clientBuilder.installDependencies();
 		await clientBuilder.build();
 		referenceClientRoute.enable();
 
 		if (SHOULD_WATCH) {
 			clientBuilder.watch();
 		}
+	} catch (e) {
+		if (e instanceof Object && "message" in e) {
+			logger.error(e.message);
+		} else {
+			logger.error("An unknown error occurred: ", e);
+		}
 	}
 }
 
-// TODO: open files
-
-try {
-	await main();
-} finally {
-	// clean up
-}
+logger.end();
