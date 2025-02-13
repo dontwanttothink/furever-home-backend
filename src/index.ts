@@ -12,7 +12,7 @@ const REFERENCE_CLIENT_ENABLED =
 
 const REFERENCE_CLIENT_PATH = resolve(__dirname, "..", "reference-client");
 
-import Logger from "./Logger";
+import * as logger from "./logger";
 import type { Route, RouteConstructor } from "./Route";
 import { PostSignUp, PostSignIn, DeleteSignOut } from "./routes/users";
 import { GetHome } from "./routes/home";
@@ -153,7 +153,6 @@ class Router {
 		return Response.json({ message: "Server Error" }, { status: 500 });
 	}
 }
-const logger = new Logger("err.log", "out.log");
 
 const db = new Database("data.sqlite", { create: true, strict: true });
 db.query(`CREATE TABLE IF NOT EXISTS users (
