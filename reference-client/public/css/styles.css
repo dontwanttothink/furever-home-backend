@@ -1,7 +1,7 @@
 :root {
     --background-color: #f4f4f4;
     --text-color: #333;
-    
+
     --dialog-background-color: #ffffff;
 
     --button-background-color: #333;
@@ -19,6 +19,36 @@
         --button-background-color: #1e1e1e;
         --button-hover-background-color: #333;
     }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.faded-in {
+    animation: fadeIn 100ms ease-out forwards;
+}
+
+.faded-out {
+    animation: fadeOut 100ms ease-out forwards;
 }
 
 .button-wrapper {
@@ -86,21 +116,6 @@ dialog {
     border: none;
     border-radius: 30px;
     padding: 1.5em;
-}
-
-@keyframes dialog-show {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-dialog[open] {
-    animation: dialog-show 0.1s ease-out;
 }
 
 dialog form {

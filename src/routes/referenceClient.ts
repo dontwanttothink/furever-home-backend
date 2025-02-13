@@ -3,7 +3,7 @@ import type { Route } from "../Route";
 
 import { resolve, normalize } from "node:path";
 
-const BASE_PATH = resolve(__dirname, "..", "..", "reference-client");
+const BASE_PATH = resolve(__dirname, "..", "..", "reference-client", "public");
 
 export class GetReferenceClient implements Route {
 	public pattern = "/client{/*path}";

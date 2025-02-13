@@ -3,10 +3,11 @@
 	"module": "index.ts",
 	"type": "module",
 	"scripts": {
-		"build": "bunx tsc",
-		"watch": "bunx tsc -w"
+		"build": "bunx tsc --noEmit && bunx bunx esbuild ts/index.ts --tsconfig=tsconfig.json --format=esm --outdir=public/js --platform=browser --out-extension:.js=.mjs --bundle --target=esnext --sourcemap"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"esbuild": "^0.25.0"
+	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"
 	}

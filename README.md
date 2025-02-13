@@ -19,7 +19,7 @@ bun dev # iniciar el servidor en modo de desarrollo
 
 El servidor estará disponible en `http://localhost:3000`.
 
-## Funciones
+## Funciones planeadas
 
 Este servicio provee una API REST para la gestión de animales en adopción. Los endpoints disponibles son:
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente de Referencia de Furever Home</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="favicon.png">
+</head>
+
+<body>
+    <h1>Te damos la bienvenida al prototipo</h1>
+
+    <p>
+        Este es un cliente de referencia para el API de Furever Home. Intenta
+        las capacidades básicas oprimiendo los botones.
+    </p>
+
+    <div class="button-wrapper">
+        <button id="sign-in">Iniciar sesión</button>
+        <button id="sign-up">Crear cuenta</button>
+        <button id="sign-out">Cerrar sesión</button>
+        <button id="view-pets">Ver mascotas</button>
+    </div>
+
+    <dialog id="user-dialog">
+        <h2 id="user-dialog-heading">Te damos la bienvenida</h2>
+        <form id="user-form" method="post">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+
+            <div id="dialog-buttons">
+                <button id="user-submit" type="submit">Iniciar sesión</button>
+                <button id="user-close-dialog" type="button">Cancelar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script type="module" src="js/index.mjs"></script>
+</body>
+
+</html>

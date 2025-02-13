@@ -39,7 +39,7 @@ class ClientBuilder {
 		// the current state will be built
 		this.changesSinceLastBuild = false;
 
-		const buildProcess = spawn(["bun", "tsc"], {
+		const buildProcess = spawn(["bun", "run", "build"], {
 			cwd: resolve(__dirname, "..", "reference-client"),
 			stdout: "inherit",
 		});
@@ -193,7 +193,6 @@ if (REFERENCE_CLIENT_ENABLED) {
 
 	const clientBuilder = new ClientBuilder();
 	try {
-		// try/catch is a flawed language feature
 		await clientBuilder.installDependencies();
 		await clientBuilder.build();
 		referenceClientRoute.enable();

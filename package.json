@@ -4,7 +4,8 @@
 	"module": "src/index.js",
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"bun-types": "latest"
+		"bun-types": "latest",
+		"esbuild": "^0.25.0"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",

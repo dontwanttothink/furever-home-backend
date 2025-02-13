@@ -10,3 +10,7 @@ bun dev
 ```
 
 from the project's root directory.
+
+## TODO: stop leaking the project.json and other development files omg???
+
+- probably just set a whitelist to serve the html, css, and js folders
