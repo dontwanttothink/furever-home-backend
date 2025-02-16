@@ -4,7 +4,7 @@ import type { Database } from "bun:sqlite";
 import { password } from "bun";
 const { hash, verify } = password;
 
-import type { Route, RouteConstructor } from "../Route";
+import type { Route, RouteConstructor } from "../routing.js";
 
 // Bun handles password salting transparently for us.
 
@@ -234,7 +234,15 @@ export const PostSignIn: RouteConstructor = class {
 		sessionStore.add(session);
 		sessionStore.removeExpired();
 
-		return Response.json({ token: session.getTokenString() }, { status: 200 });
+		return Response.json(
+			{ message: "Successful sign-in!" },
+			{
+				status: 200,
+				headers: {
+					"Set-Cookie": `__Secure-auth_token=${session.getTokenString()}; Path=/; HttpOnly; Secure; SameSite=Strict`,
+				},
+			},
+		);
 	}
 };
 

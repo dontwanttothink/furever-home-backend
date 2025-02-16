@@ -4,7 +4,6 @@ import { resolve } from "node:path";
 
 import colors from "yoctocolors";
 import { watch } from "chokidar";
-import { match } from "path-to-regexp";
 
 const SHOULD_WATCH = argv.includes("--reference-client-watch");
 const REFERENCE_CLIENT_ENABLED =
@@ -13,7 +12,7 @@ const REFERENCE_CLIENT_ENABLED =
 const REFERENCE_CLIENT_PATH = resolve(__dirname, "..", "reference-client");
 
 import * as logger from "./logger";
-import type { Route, RouteConstructor } from "./Route";
+import { Handler, type Route, type RouteConstructor } from "./routing";
 import { PostSignUp, PostSignIn, DeleteSignOut } from "./routes/users";
 import { GetHome } from "./routes/home";
 import { GetReferenceClient } from "./routes/referenceClient";
@@ -80,38 +79,6 @@ class ClientBuilder {
 		if (!this.isBuilding) {
 			this.build();
 		}
-	}
-}
-
-class Handler {
-	private route;
-	private doesMatch;
-
-	constructor(route: Route) {
-		this.route = route;
-		this.doesMatch = match(this.route.pattern);
-	}
-
-	get name(): string {
-		return this.route.constructor.name;
-	}
-
-	shouldHandle(req: Request): boolean {
-		const asUrl = new URL(req.url);
-		return !!this.doesMatch(asUrl.pathname) && req.method === this.route.method;
-	}
-
-	handle(req: Request): Promise<Response> | Response {
-		const asUrl = new URL(req.url);
-
-		const matchResult = this.doesMatch(asUrl.pathname);
-		if (!matchResult) {
-			throw new Error(
-				"Inconsistent state: handle called for a route that doesn't match",
-			);
-		}
-
-		return this.route.handle(req, matchResult);
 	}
 }
 

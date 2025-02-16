@@ -1,4 +1,4 @@
-import type { RouteConstructor } from "../Route";
+import type { RouteConstructor } from "../routing.js";
 
 export const GetHome: RouteConstructor = class {
 	public pattern = "/";

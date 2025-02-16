@@ -1,5 +1,5 @@
 import type { MatchResult } from "path-to-regexp";
-import type { Route } from "../Route";
+import type { Route } from "../routing.js";
 
 import { resolve, normalize } from "node:path";
 
