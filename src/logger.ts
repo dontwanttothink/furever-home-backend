@@ -1,7 +1,6 @@
 /**
  * The logger always writes to the process output. */
 
-import type { FileSink } from "bun";
 import stripAnsi from "strip-ansi";
 
 const ERROR_LOG_FILENAME = "err.log";
